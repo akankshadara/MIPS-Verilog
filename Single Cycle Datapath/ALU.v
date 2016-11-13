@@ -265,15 +265,27 @@ module AND_array(RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, 
   
 endmodule
     
-    
-module ALU_control(ALUOp, funct, Op);
-  input[3:0] funct;
-  input[1:0] ALUOp;
-  output [2:0] Op;
-  
-  //dataflow modelling
-  assign Op[0] = (ALUOp[1]) & (funct[0]|funct[3]);
-  assign Op[1] = (~ALUOp[1]) | (~funct[2]);
-  assign Op[2] = (ALUOp[0]) | (ALUOp[1]&funct[1]);
+module tbALU;
+  reg Binvert, Carryin;
+  reg [1:0] Operation;
+  reg [31:0] a,b;
+  wire [31:0] Result;
+  wire CarryOut;
+  ALU_32bit a1(Result,CarryOut,a,b,Carryin,Binvert,Operation);
+ 
+  initial
+  begin
+  a=32'ha5a5a5a5;
+  b=32'h5a5a5a5a;
+  Operation=2'b00;
+  Binvert=1'b0;
+  Carryin=1'b0; //must perform AND resulting in zero
+  #100 Operation=2'b01; //OR
+  $display($time, "result=%b", Result);
+  #100 Operation=2'b10; //ADD
+  #100 Binvert=1'b1;//SUB
+  #200 $finish;
+  end
 endmodule
+ 
 
